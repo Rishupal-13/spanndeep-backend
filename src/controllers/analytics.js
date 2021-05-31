@@ -1,7 +1,7 @@
-const connectDB = require("../db/connect");
+const { connectRedshiftDB } = require("../db/connect");
 
 exports.Fetch = async function (req, res) {
-  const redshiftClient = connectDB();
+  const redshiftClient = connectRedshiftDB();
   redshiftClient
     .query('SELECT * FROM "demodata3"')
     .then(function (data) {
