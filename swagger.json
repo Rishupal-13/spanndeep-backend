@@ -1,0 +1,371 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "0.1.0",
+    "title": "Spanndeep Backend",
+    "description": "Backend API for SpannDeep, Handles Redshift and MongoDB data"
+  },
+  "host": "localhost:4000",
+  "basePath": "/api",
+  "paths": {
+    "/analytics": {
+      "get": {
+        "tags": ["Analytics Data"],
+        "summary": "Fetches Data from Redshift and serves it",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "properties": {
+                "command": {
+                  "type": "string"
+                },
+                "rowCount": {
+                  "type": "string"
+                },
+                "oid": {
+                  "type": "string"
+                },
+                "rows": {
+                  "type": "array"
+                },
+                "fields": {
+                  "type": "array"
+                },
+                "_parsers": {
+                  "type": "array"
+                },
+                "rowAsArray": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logs the user in and generated JWT",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "description": "Auth token for user"
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "token": "I am a token and save me to localstorage"
+              }
+            }
+          },
+          "400": {
+            "description": "BAD BODY",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "UNAUTH BODY",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Login",
+            "in": "body",
+            "description": "Gets cedentials, matches and gives jwt if correct",
+            "schema": {
+              "type": "object",
+              "required": ["email", "password"],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "description": "User E-mail"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "User Password"
+                }
+              }
+            }
+          }
+        ],
+        "produces": ["application/json"]
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Register the user",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "required": [
+                "email",
+                "password",
+                "firstName",
+                "lastName",
+                "age",
+                "gender"
+              ],
+              "$ref": "#/definitions/User"
+            },
+            "examples": {
+              "application/json": {
+                "userType": "USER",
+                "_id": "60b5ae5f9542ebd58c273d84",
+                "email": "name@email.com",
+                "password": "$argon2i$v=19$m=4096,t=3,p=1$WCSUJVT1epEz6tWq42RHxw$9mdMrxf4EsknjcZiBbr4H2xLFcij56dT1cYig2gmCvo",
+                "firstName": "John",
+                "lastName": "Doe",
+                "age": "21",
+                "gender": "MALE",
+                "createdAt": "2021-06-01T03:49:51.501Z",
+                "updatedAt": "2021-06-01T03:49:51.501Z",
+                "__v": 0
+              }
+            }
+          },
+          "400": {
+            "description": "BAD BODY",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Register Body",
+            "in": "body",
+            "description": "Form Body for User Registration",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/UserRegisterInput",
+              "example": {
+                "email": "name@email.com",
+                "password": "verySecurePassword@123",
+                "firstName": "John",
+                "lastName": "Doe",
+                "age": "21",
+                "gender": "MALE"
+              }
+            }
+          }
+        ],
+        "produces": ["application/json"]
+      }
+    },
+    "/auth/register-admin": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Register the admin",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "required": ["email", "password"],
+              "$ref": "#/definitions/Admin"
+            },
+            "examples": {
+              "application/json": {
+                "userType": "ADMIN",
+                "_id": "60b5ae5f9542ebd58c273d84",
+                "email": "name@email.com",
+                "password": "$argon2i$v=19$m=4096,t=3,p=1$WCSUJVT1epEz6tWq42RHxw$9mdMrxf4EsknjcZiBbr4H2xLFcij56dT1cYig2gmCvo",
+                "createdAt": "2021-06-01T03:49:51.501Z",
+                "updatedAt": "2021-06-01T03:49:51.501Z",
+                "__v": 0
+              }
+            }
+          },
+          "400": {
+            "description": "BAD BODY",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Register Admin Body",
+            "in": "body",
+            "description": "Form Body for User Registration",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/AdminRegisterInput",
+              "example": {
+                "email": "name@email.com",
+                "password": "verySecurePassword@123"
+              }
+            }
+          }
+        ],
+        "produces": ["application/json"]
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "properties": {
+        "_id": {
+          "type": "string",
+          "description": "Stores MongoDB id"
+        },
+        "email": {
+          "type": "string",
+          "description": "Stores Email of the user"
+        },
+        "password": {
+          "type": "string",
+          "description": "Stores Hashed Password of the user"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Stores First Name of the user"
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Stores Last Name of the user"
+        },
+        "age": {
+          "type": "string",
+          "description": "Stores Age of the user"
+        },
+        "gender": {
+          "type": "string",
+          "enum": ["MALE", "FEMALE", "OTHERS"],
+          "description": "Stores Gender of the user"
+        },
+        "userType": {
+          "type": "string",
+          "enum": ["ADMIN", "USER", "SUPERADMIN"],
+          "description": "Stores Role of the user"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "Admin": {
+      "properties": {
+        "_id": {
+          "type": "string",
+          "description": "Stores MongoDB id"
+        },
+        "email": {
+          "type": "string",
+          "description": "Stores Email of the user"
+        },
+        "password": {
+          "type": "string",
+          "description": "Stores Hashed Password of the user"
+        },
+        "userType": {
+          "type": "string",
+          "enum": ["ADMIN", "USER", "SUPERADMIN"],
+          "description": "Stores Role of the user"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "UserRegisterInput": {
+      "required": [
+        "email",
+        "password",
+        "firstName",
+        "lastName",
+        "age",
+        "gender"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Stores Email of the user"
+        },
+        "password": {
+          "type": "string",
+          "description": "Stores Hashed Password of the user"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Stores First Name of the user"
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Stores Last Name of the user"
+        },
+        "age": {
+          "type": "string",
+          "description": "Stores Age of the user"
+        },
+        "gender": {
+          "type": "string",
+          "enum": ["MALE", "FEMALE", "OTHERS"],
+          "description": "Stores Gender of the user"
+        }
+      }
+    },
+    "AdminRegisterInput": {
+      "required": ["email", "password"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Stores Email of the user"
+        },
+        "password": {
+          "type": "string",
+          "description": "Stores Hashed Password of the user"
+        }
+      }
+    },
+    "Error": {
+      "properties": {
+        "errors": {
+          "type": "string",
+          "description": "Gives detail of error"
+        }
+      }
+    }
+  },
+  "schemes": ["http"],
+  "securityDefinitions": {
+    "JWT Auth": {
+      "type": "apiKey",
+      "description": "JWT Based Authentication",
+      "name": "token",
+      "in": "header"
+    }
+  },
+  "consumes": ["application/json"],
+  "produces": ["application/json"]
+}

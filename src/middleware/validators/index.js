@@ -2,7 +2,7 @@ const { check } = require("express-validator");
 
 exports.LoginValidator = [
   check("email", "E-mail is required").not().isEmpty(),
-  check("passowrd", "Password is required").not().isEmpty(),
+  check("password", "Password is required").not().isEmpty(),
 ];
 
 exports.RegisterValidator = [
